@@ -40,7 +40,7 @@ startup
 							vars.split = true;
 							break;
 						case 3:
-							vars.gameTime = TimeSpan.FromSeconds(double.Parse(cmd.Replace('.', ',').Substring(1)));
+							vars.gameTime = TimeSpan.FromSeconds(double.Parse(cmd.Replace(',', '.').Substring(1), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture));
 							break;
 					}
 				}
