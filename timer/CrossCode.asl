@@ -1,4 +1,4 @@
-state("nw")
+state("crosscode-beta")
 {
 	
 }
@@ -14,42 +14,56 @@ startup
 		vars.listener = listener;
 		
 		listener.Start();
-		listener.BeginAcceptSocket(ar =>
+		
+		Action accept = null;
+		accept = () => 
 		{
-			try{
-				System.Net.Sockets.TcpClient client = listener.EndAcceptTcpClient(ar);
-				vars.connected = true;
-				
-				System.IO.StreamReader reader = new System.IO.StreamReader(client.GetStream());
-				var exit = false;
-				while (!exit)
+			listener.BeginAcceptSocket(ar =>
+			{
+				try
 				{
-					string cmd = reader.ReadLine();
-					switch(cmd[0] - '0')
+					System.Net.Sockets.TcpClient client = listener.EndAcceptTcpClient(ar);
+					vars.connected = true;
+					
+					System.IO.StreamReader reader = new System.IO.StreamReader(client.GetStream());
+					var exit = false;
+					while (!exit)
 					{
-						case 0:
-							client.Close();
-							vars.started = false;
-							vars.connected = false;
-							exit = true;
-							break;
-						case 1:
-							vars.started = true;
-							break;
-						case 2:
-							vars.split = true;
-							break;
-						case 3:
-							vars.gameTime = TimeSpan.FromSeconds(double.Parse(cmd.Replace(',', '.').Substring(1), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture));
-							break;
+						string cmd = reader.ReadLine();
+						switch(cmd[0] - '0')
+						{
+							case 0:
+								client.Close();
+								vars.started = false;
+								vars.connected = false;
+								exit = true;
+								break;
+							case 1:
+								vars.started = true;
+								break;
+							case 2:
+								vars.split = true;
+								break;
+							case 3:
+								vars.gameTime = TimeSpan.FromSeconds(double.Parse(cmd.Replace(',', '.').Substring(1), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture));
+								break;
+						}
 					}
 				}
-			}catch (Exception ex){
-				System.Windows.Forms.MessageBox.Show("An exception occured: " + ex.Message);
-			}
-		}, null);
+				catch(System.IO.IOException)
+				{
+					accept();
+				}
+				catch (Exception ex)
+				{
+					System.Windows.Forms.MessageBox.Show("An exception occured: " + ex.ToString());
+				}
+			}, null);
+		};
+		
+		accept();
 	}catch (Exception ex){
-		System.Windows.Forms.MessageBox.Show("An exception occured: " + ex.Message);
+		System.Windows.Forms.MessageBox.Show("An exception occured: " + ex.ToString());
 	}
 }
 
@@ -58,13 +72,18 @@ shutdown
 	try{
 		vars.listener.Stop();
 	}catch (Exception ex){
-		System.Windows.Forms.MessageBox.Show("An exception occured: " + ex.Message);
+		System.Windows.Forms.MessageBox.Show("An exception occured: " + ex.ToString());
 	}
 }
 
 start
 {
-	return vars.started;
+	if(vars.started)
+	{
+		vars.started = false;
+		return true;
+	}
+	return false;
 }
 
 split
