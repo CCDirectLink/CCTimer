@@ -14,7 +14,18 @@ document.body.addEventListener('modsLoaded', function () {
 			usingFallback = false;
 			
 			var started = false;
-			var spl0 = false;
+			
+			var maps = [];
+			var settings = [];
+			
+			require("fs").readFile("assets/mods/timer/settings.json", 'utf8', function(err, data){
+				if(err)
+					console.error(err);
+				
+				settings = JSON.parse(data);
+				console.log("[timer] Settings loaded");
+			});
+			
 			
 			cc.ig.gameMain.original_loadMap_timer = cc.ig.gameMain[cc.ig.varNames.gameMainLoadMap];
 			cc.ig.gameMain[cc.ig.varNames.gameMainLoadMap] = function(data){ 
@@ -44,6 +55,18 @@ document.body.addEventListener('modsLoaded', function () {
 			
 			function checkSplits() {
 				var result = false;
+				
+				for(var i = 0; i < settings.length; i++){
+					if(settings[i].type === "loadmap"){
+						var map = cc.ig.getMapName();
+						if(map === settings[i].name){
+							if(!settings[i].once || maps.indexOf(map) < 0){
+								sendSplit();
+								maps.push(map);
+							}
+						}
+					}
+				}
 				
 				//if(!spl0 && cc.ig.getMapName() === "hideout.path-1")
 				//	result = spl0 = true;

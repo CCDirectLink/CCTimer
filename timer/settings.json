@@ -1,0 +1,11 @@
+[{
+	"type": "start"
+}, {
+	"type": "loadmap",
+	"name": "rookie-harbor.south",
+	"once": true
+}, {
+	"type": "eventtriggered",
+	"name": "",
+	"once": true
+}]
