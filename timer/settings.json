@@ -6,6 +6,7 @@
 	"once": true
 }, {
 	"type": "eventtriggered",
-	"name": "",
+	"name": "maps.cargoShip/cabins1.kitchenScene",
+	"value": true,
 	"once": true
 }]

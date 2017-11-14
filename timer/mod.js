@@ -15,7 +15,6 @@ document.body.addEventListener('modsLoaded', function () {
 			
 			var started = false;
 			
-			var maps = [];
 			var settings = [];
 			
 			require("fs").readFile("assets/mods/timer/settings.json", 'utf8', function(err, data){
@@ -57,14 +56,28 @@ document.body.addEventListener('modsLoaded', function () {
 				var result = false;
 				
 				for(var i = 0; i < settings.length; i++){
-					if(settings[i].type === "loadmap"){
-						var map = cc.ig.getMapName();
-						if(map === settings[i].name){
-							if(!settings[i].once || maps.indexOf(map) < 0){
+					switch(settings[i].type){
+						case "loadmap":
+							var map = cc.ig.getMapName();
+							if(map === settings[i].name){
 								sendSplit();
-								maps.push(map);
+								
+								if(settings[i].once){
+									settings.splice(i, 1);
+									i--;
+								}
 							}
-						}
+							break;
+						case "eventtriggered":
+							if(ig.vars.get(settings[i].name) == settings[i].value){
+								sendSplit();
+								
+								if(settings[i].once){
+									settings.splice(i, 1);
+									i--;
+								}
+							}
+							break;
 					}
 				}
 				
