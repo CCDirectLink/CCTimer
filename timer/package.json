@@ -1,4 +1,8 @@
 {
 	"name": "timer",
-	"main": "mod.js"
+	"main": "mod.js",
+	"dependencies": {
+		"ccloader": "^2.5.1",
+		"Simplify": "^2.0.3"
+	}
 }

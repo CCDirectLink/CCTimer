@@ -1,6 +1,6 @@
 if(!cc)
 	throw "No Modloader Found!";
-document.body.addEventListener('modsLoaded', function () {
+document.body.addEventListener('simplifyInitialized', function () {
 	var net;
 	var usingFallback = false;
 
@@ -145,6 +145,39 @@ document.body.addEventListener('modsLoaded', function () {
 				simplify.registerUpdate(update);
 			});
 	}
+
+
+	ig.lang.labels.sc.gui.options['dontResetTimerOnDeath'] = {name: 'Don\'t reset timer on death', description: 'Don\'t reset timer on death. \\c[1]WARNING: This will affect the actual IGT!'};
+	ig.lang.labels.sc.gui.options['printEvents'] = {name: 'Print all events', description: 'Print all possible events that can be split on. Use "Log level: Default"'};
+	ig.lang.labels.sc.gui.options.headers['ccTimer'] = 'CCTimer';
+	simplify.options.addEntry('dontResetTimerOnDeath', 'CHECKBOX', true, 0, undefined, true, 'ccTimer');
+	simplify.options.addEntry('printEvents', 'CHECKBOX', false, 0, undefined, true);
+	
+	const originalSet = ig.vars.set;
+	ig.vars.set = function(path, value) {
+		if (sc.options.get('printEvents') && value !== ig.vars.get(path))
+			console.log('event', path, '=', value);
+		originalSet.call(this, path, value);
+	}
+
+	const originalLoad = cc.ig.gameMain[entries.gameMainLoadMap];
+	cc.ig.gameMain[entries.gameMainLoadMap] = function(data){
+		const result = originalLoad.apply(cc.ig.gameMain, arguments);
+		
+		if (sc.options.get('printEvents'))
+			console.log('loadmap', 'Entered map', cc.ig.getMapName());
+
+		return result;
+	};
+
+	let stats = cc.sc.stats[entries.values];
+	Object.defineProperty(cc.sc.stats, entries.values, {
+		get: () => stats,
+		set: val => {
+			if(sc.options.get('dontResetTimerOnDeath') && stats && stats.player && stats.player.playtime && val && val.player && val.player.playtime) 
+				val.player.playtime = stats.player.playtime;
+			stats = val;
+	}});
 
 	if(window.require)
 		connect();
