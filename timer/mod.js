@@ -51,33 +51,58 @@ document.body.addEventListener('simplifyInitialized', function () {
 			function sendSplit() {
 				livesplit.write("2\n");
 			}
+
+			function checkCondition(setting) {
+				switch(setting.type){
+					case "loadmap":
+						const map = cc.ig.getMapName();
+						if(map === setting.name){
+							return [true, setting.one];
+						}
+						break;
+					case "eventtriggered":
+						if(ig.vars.get(setting.name) == setting.value){
+							return [true, setting.one];
+						}
+						break;
+					case "combined":
+						const conds = setting.conditions;
+						if (conds.length === 0) {
+							return [true, true]
+						}
+						
+						for (let i = 0; i < conds.length; i++) {
+							const [split, once] = checkCondition(conds[i]);
+							if (!split) {
+								return [false, false];
+							}
+
+							if (once) {
+								conds.splice(i, 1);
+								i--;
+							}
+						}
+
+
+						if (conds.length === 0) {
+							return [true, true];
+						}
+						return [true, setting.once]
+				}
+				return [false, false];
+			}
 			
 			function checkSplits() {
 				var result = false;
 				
 				for(var i = 0; i < settings.length; i++){
-					switch(settings[i].type){
-						case "loadmap":
-							var map = cc.ig.getMapName();
-							if(map === settings[i].name){
-								sendSplit();
-								
-								if(settings[i].once){
-									settings.splice(i, 1);
-									i--;
-								}
-							}
-							break;
-						case "eventtriggered":
-							if(ig.vars.get(settings[i].name) == settings[i].value){
-								sendSplit();
-								
-								if(settings[i].once){
-									settings.splice(i, 1);
-									i--;
-								}
-							}
-							break;
+					const [split, once] = checkCondition(settings[i]);
+					if (split) {
+						sendSplit();
+					}
+					if (once) {
+						settings.splice(i, 1);
+						i--;
 					}
 				}
 				
