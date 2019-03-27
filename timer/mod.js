@@ -57,12 +57,12 @@ document.body.addEventListener('simplifyInitialized', function () {
 					case "loadmap":
 						const map = cc.ig.getMapName();
 						if(map === setting.name){
-							return [true, setting.one];
+							return [true, setting.once];
 						}
 						break;
 					case "eventtriggered":
 						if(ig.vars.get(setting.name) == setting.value){
-							return [true, setting.one];
+							return [true, setting.once];
 						}
 						break;
 					case "combined":
