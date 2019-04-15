@@ -9,6 +9,10 @@ startup
 		vars.connected = false;
 		vars.started = false;
 		vars.split = false;
+		vars.loading = true;
+		vars.startTime = DateTime.Now;
+		vars.pausedTime = TimeSpan.Zero;
+		vars.pauseStartTime = DateTime.Now;
 		vars.gameTime = TimeSpan.Zero;
 		System.Net.Sockets.TcpListener listener = new System.Net.Sockets.TcpListener(12346);
 		vars.listener = listener;
@@ -47,6 +51,15 @@ startup
 							case 3:
 								vars.gameTime = TimeSpan.FromSeconds(double.Parse(cmd.Replace(',', '.').Substring(1), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture));
 								break;
+							case 4:
+								vars.loading = true;
+								vars.pausedTime = DateTime.Now - vars.startTime;
+								vars.pauseStartTime = DateTime.Now;
+								break;
+							case 5:
+								vars.loading = false;
+								vars.startTime += DateTime.Now - vars.pauseStartTime;
+								break;
 						}
 					}
 				}
@@ -81,6 +94,8 @@ start
 	if(vars.started)
 	{
 		vars.started = false;
+		vars.startTime = DateTime.Now;
+		vars.pauseStartTime = DateTime.Now;
 		return true;
 	}
 	return false;
@@ -103,10 +118,14 @@ update
 
 isLoading
 {
-	return true;
+	return vars.loading;
 }
 
 gameTime
 {
-	return vars.gameTime;
+	if (vars.loading) {
+		return vars.pausedTime;
+	}
+
+	return vars.gameTime == TimeSpan.Zero ? (DateTime.Now - vars.startTime) : vars.gameTime;
 }
