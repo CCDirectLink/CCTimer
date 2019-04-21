@@ -11,7 +11,7 @@ export class Hooks {
 		const original = ig.vars.set;
 		ig.vars.set = function(...args) {
 			callback(...args);
-			original.apply(this, args);
+			original.apply(ig.vars, args);
 		};
 	}
 
