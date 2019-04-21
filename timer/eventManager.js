@@ -15,7 +15,7 @@ export class EventManager {
 	start(config) {
 		this._config = config;
 
-		this._hooks.hookLoadMap(() => this.onstart());
+		this._hooks.hookNewGameButton(() => this._onStart());
 		simplify.registerUpdate(() => this._update());
 	}
 
@@ -31,6 +31,20 @@ export class EventManager {
 			}
 
 			if (once) {
+				event.disabled = true;
+			}
+		}
+	}
+
+	_onStart() {
+		for (const event of this._config.splits) {
+			if (event.disabled || event.type !== 'start') {
+				continue;
+			}
+
+			this.onstart();
+
+			if (event.once) {
 				event.disabled = true;
 			}
 		}
