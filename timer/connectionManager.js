@@ -54,10 +54,8 @@ export class ConnectionManager {
 
 		if (paused) {
 			this.livesplit.write('4\n');
-			console.log('pause');
 		} else {
 			this.livesplit.write('5\n');
-			console.log('unpause');
 		}
 	}
 }

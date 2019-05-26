@@ -6,6 +6,7 @@ export class EventManager {
 
 		this.onstart = () => {};
 		this.onsplit = () => {};
+		this.onunload = () => {};
 	}
 
 	/**
@@ -17,6 +18,7 @@ export class EventManager {
 
 		this._hooks.hookNewGameButton(() => this._onStart());
 		simplify.registerUpdate(() => this._update());
+		window.addEventListener('unload', () => this.onunload());
 	}
 
 	_update() {

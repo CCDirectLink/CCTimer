@@ -36,6 +36,7 @@ document.body.addEventListener('simplifyInitialized', () => {
 		const events = new EventManager();
 		events.onstart = () => connection.sendStart();
 		events.onsplit = () => connection.sendSplit();
+		events.onunload = () => connection.sendPaused(false);
 		events.start(config);
 	}
 });

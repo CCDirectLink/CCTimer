@@ -52,13 +52,17 @@ startup
 								vars.gameTime = TimeSpan.FromSeconds(double.Parse(cmd.Replace(',', '.').Substring(1), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture));
 								break;
 							case 4:
-								vars.loading = true;
-								vars.pausedTime = DateTime.Now - vars.startTime;
-								vars.pauseStartTime = DateTime.Now;
+								if (!vars.loading) {
+									vars.loading = true;
+									vars.pausedTime = DateTime.Now - vars.startTime;
+									vars.pauseStartTime = DateTime.Now;
+								}
 								break;
 							case 5:
-								vars.loading = false;
-								vars.startTime += DateTime.Now - vars.pauseStartTime;
+								if (vars.loading) {
+									vars.loading = false;
+									vars.startTime += DateTime.Now - vars.pauseStartTime;
+								}
 								break;
 						}
 					}
