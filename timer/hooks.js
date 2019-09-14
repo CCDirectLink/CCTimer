@@ -6,19 +6,18 @@ export class Hooks {
 			ig.game.start = (...args) => {
 				callback(...args);
 				return original.apply(ig.game, args);
-			}; 
+			};
+		} else {
+			const buttonNumber = ig.platform === 1 ? 3 : 2;
+			const buttons = simplify.getInnerGui(cc.ig.GUI.menues[15].children[2])[entries.buttons];
+			const newGameButton = buttons[buttonNumber];
+	
+			const original = newGameButton[entries.callbackFunction];
+			newGameButton[entries.callbackFunction] = (...args) => {
+				callback(...args);
+				return original.apply(newGameButton, args);
+			};
 		}
-
-
-		const buttonNumber = ig.platform === 1 ? 3 : 2;
-		const buttons = simplify.getInnerGui(cc.ig.GUI.menues[15].children[2])[entries.buttons];
-		const newGameButton = buttons[buttonNumber];
-
-		const original = newGameButton[entries.callbackFunction];
-		newGameButton[entries.callbackFunction] = (...args) => {
-			callback(...args);
-			return original.apply(newGameButton, args);
-		};
 	}
 
 	hookLoadMap(callback) {
