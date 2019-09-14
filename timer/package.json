@@ -2,7 +2,7 @@
 	"name": "timer",
 	"main": "mod.js",
 	"module": true,
-	"version": "2.2.0",
+	"version": "2.2.1",
 	"dependencies": {
 		"ccloader": "^2.7.7",
 		"Simplify": "^2.0.3"
