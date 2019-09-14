@@ -1,6 +1,15 @@
 export class Hooks {
 
 	hookNewGameButton(callback) {
+		if (ig.game && ig.game.start) {
+			const original = ig.game.start;
+			ig.game.start = (...args) => {
+				callback(...args);
+				return original.apply(ig.game, args);
+			}; 
+		}
+
+
 		const buttonNumber = ig.platform === 1 ? 3 : 2;
 		const buttons = simplify.getInnerGui(cc.ig.GUI.menues[15].children[2])[entries.buttons];
 		const newGameButton = buttons[buttonNumber];
