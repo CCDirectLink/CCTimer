@@ -39,6 +39,8 @@ export class EventManager {
 	}
 
 	_onStart() {
+		this._config.reset();
+
 		for (const event of this._config.splits) {
 			if (event.disabled || event.type !== 'start') {
 				continue;

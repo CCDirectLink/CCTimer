@@ -9,6 +9,7 @@ export class Config {
 
 		/** @type {{type: 'start' | 'loadmap' | 'eventtriggered' | 'combined', name?: string, once?: boolean, value?: any, conditions?: any[]}[]} */
 		this.splits = [];
+		this._originalSplits = [];
 
 		/** @type {(newValue: string, oldValue: string) => boolean} */
 		this.filter = () => true;
@@ -19,13 +20,44 @@ export class Config {
 		this._config = await simplify.resources.loadJSON(this._modFolder + name);
 
 		if (this._config instanceof Array) { // Legacy support
-			this.splits = this._config;
+			this._originalSplits = this._config;
 		} else {
-			this.splits = this._config.splits;
+			this._originalSplits = this._config.splits;
 			if (this._config.time === 'state') {
 				this.isIGT = false;
 				this.filter = this._buildFilter(this._config.filter || {});
 			}
+		}
+
+		this.reset();
+	}
+
+	reset() {
+		this.splits = [];
+		this._copyArray(this.splits, this._originalSplits);
+	}
+
+	/**
+	 * 
+	 * @param {{type: 'start' | 'loadmap' | 'eventtriggered' | 'combined', name?: string, once?: boolean, value?: any, conditions?: any[]}} source 
+	 * @returns {{type: 'start' | 'loadmap' | 'eventtriggered' | 'combined', name?: string, once?: boolean, value?: any, conditions?: any[]}} 
+	 */
+	_copy(source) {
+		const result = Object.assign({}, source);
+		if (result.type === 'combined') {
+			result.conditions = [];
+			this._copyArray(result.conditions, source.conditions);
+		}
+		return result;
+	}
+	/**
+	 * 
+	 * @param {{type: 'start' | 'loadmap' | 'eventtriggered' | 'combined', name?: string, once?: boolean, value?: any, conditions?: any[]}[]} target 
+	 * @param {{type: 'start' | 'loadmap' | 'eventtriggered' | 'combined', name?: string, once?: boolean, value?: any, conditions?: any[]}[]} source 
+	 */
+	_copyArray(target, source) {
+		for (const event of source) {
+			target.push(this._copy(event));
 		}
 	}
 
