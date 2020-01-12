@@ -29,11 +29,13 @@ export class EventManager {
 
 			const [split, once] = this._checkEvent(event);
 			if (split) {
+				console.log('[timer] Split event: ', event);
 				this.onsplit();
 			}
 
 			if (once) {
 				event.disabled = true;
+				console.log('[timer] Disabled event: ', event);
 			}
 		}
 	}

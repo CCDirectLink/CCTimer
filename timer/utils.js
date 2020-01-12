@@ -56,3 +56,9 @@ export class Utils {
 		});
 	}
 }
+
+Utils.log = (...args) => {
+	if (window.logTimer) {
+		console.log(...args);
+	}
+};

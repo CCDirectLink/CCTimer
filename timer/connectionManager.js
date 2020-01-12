@@ -1,3 +1,5 @@
+import { Utils } from './utils.js';
+
 export class ConnectionManager {
 	constructor() {
 		this.net = require('net');
@@ -19,6 +21,7 @@ export class ConnectionManager {
 		}
 
 		this.livesplit.write('1\n');
+		Utils.log('Sent start');
 	}
 
 	/**
@@ -37,10 +40,12 @@ export class ConnectionManager {
 
 	sendSplit() {
 		if (!this.livesplit) {
+			console.warn('[timer] Could not send split');
 			return;
 		}
 
 		this.livesplit.write('2\n');
+		Utils.log('Sent split');
 	}
 
 	/**
