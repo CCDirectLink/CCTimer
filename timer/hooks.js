@@ -1,48 +1,53 @@
 export class Hooks {
 
 	hookNewGameButton(callback) {
-		if (ig.game && ig.game.start) {
-			const original = ig.game.start;
-			ig.game.start = (...args) => {
+		sc.CrossCode.inject({
+			start(...args) {
 				callback(...args);
-				return original.apply(ig.game, args);
-			};
-		} else {
-			const buttonNumber = ig.platform === 1 ? 3 : 2;
-			const buttons = simplify.getInnerGui(cc.ig.GUI.menues[15].children[2])[entries.buttons];
-			const newGameButton = buttons[buttonNumber];
-	
-			const original = newGameButton[entries.callbackFunction];
-			newGameButton[entries.callbackFunction] = (...args) => {
-				callback(...args);
-				return original.apply(newGameButton, args);
-			};
-		}
+				return this.parent(...args);
+			}
+		});
 	}
 
 	hookLoadMap(callback) {
-		const original = cc.ig.gameMain[cc.ig.varNames.gameMainLoadMap];
-		cc.ig.gameMain[cc.ig.varNames.gameMainLoadMap] = (...args) => {
-			callback(...args);
-			return original.apply(cc.ig.gameMain, args);
-		};
+		sc.CrossCode.inject({
+			loadLevel(...args) {
+				callback(...args);
+				return this.parent(...args);
+			}
+		});
 	}
 
 	hookVarSet(callback) {
-		const original = ig.vars.set;
-		ig.vars.set = function(...args) {
-			callback(...args);
-			original.apply(ig.vars, args);
-		};
+		ig.Vars.inject({
+			set(...args) {
+				callback(...args);
+				return this.parent(...args);
+			}
+		});
 	}
 
 	hookStatsSet(callback) {
-		let stats = cc.sc.stats[entries.values];
-		Object.defineProperty(cc.sc.stats, entries.values, {
+		let stats = sc.stats.values;
+		Object.defineProperty(cc.sc.stats, 'values', {
 			get: () => stats,
 			set: val => {
 				stats = callback(val, stats) || val;
-				return true;
+			}
+		});
+	}
+
+	hookEnemyHP(callback) {
+		sc.CombatParams.inject({
+			init: function(...args) {
+				const result = this.parent(...args);
+				sc.Model.addObserver(this, {
+					modelChanged: (cp, msg) => {
+						if (msg === sc.COMBAT_PARAM_MSG.HP_CHANGED) {
+							callback(cp.combatant.enemyName, cp.currentHp);
+						}
+					}});
+				return result;
 			}
 		});
 	}

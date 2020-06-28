@@ -112,6 +112,22 @@ The `"start"` split is a special split that starts the timer when any map is loa
 }
 ```
 
+
+### Damage
+
+`"damage"` checks if an entity is damaged. HP ranges can be filtered using `"above"` and/or `below`.
+
+#### Example
+```json
+{
+	"splits": [{
+		"type": "damage",
+		"name": "shredder-alpha",
+		"below": 0
+	}]
+}
+```
+
 ### Combined
 
 The `"combined"` split is triggered if all `"conditions"` apply. Every condition is a split and can contain `"once": true`.
@@ -166,6 +182,10 @@ The `"combined"` split is triggered if all `"conditions"` apply. Every condition
 		"name": "maps.cargoShip/cabins1.kitchenScene",
 		"value": true,
 		"once": true
+	}, {
+		"type": "damage",
+		"name": "shredder-alpha",
+		"below": 0
 	}, {
 		"type": "combined",
 		"once": true,

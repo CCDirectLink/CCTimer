@@ -1,9 +1,9 @@
 import { State } from './stateManager.js';
 
 export class Config {
-	constructor() {
+	constructor(mod) {
 		/** @type {string} */
-		this._modFolder = simplify.getMod('timer').baseDirectory;
+		this._modFolder = mod.baseDirectory.substr(7);
 		/** @type {[{type: string}] | {time: 'igt' | 'state', filter?: {include?: string[], exclude?: string[]}, splits: {type: 'start' | 'loadmap' | 'eventtriggered' | 'combined', name?: string, once?: boolean, value?: any, conditions?: any[]}[]}} */
 		this._config = null;
 
@@ -17,7 +17,8 @@ export class Config {
 	}
 
 	async load(name) {
-		this._config = await simplify.resources.loadJSON(this._modFolder + name);
+		const req = await fetch(this._modFolder + name);
+		this._config = await req.json();
 
 		if (this._config instanceof Array) { // Legacy support
 			this._originalSplits = this._config;

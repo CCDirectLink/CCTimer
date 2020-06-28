@@ -47,8 +47,8 @@ export class StateManager {
 
 
 	_setupHooks() {
-		let value = sc[entries.playerModelInstance][entries.currentSubState];
-		Object.defineProperty(sc[entries.playerModelInstance], entries.currentSubState, {
+		let value = sc.model.currentSubState;
+		Object.defineProperty(sc.model, 'currentSubState', {
 			get: () => value,
 			set: val => {
 				if (val !== value) {

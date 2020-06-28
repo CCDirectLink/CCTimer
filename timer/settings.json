@@ -29,6 +29,10 @@
 		"value": true,
 		"once": true
 	}, {
+		"type": "damage",
+		"name": "shredder-alpha",
+		"below": 0
+	}, {
 		"type": "combined",
 		"once": true,
 		"conditions": [{

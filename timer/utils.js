@@ -54,6 +54,13 @@ export class Utils {
 				console.log('loadmap', 'Entered map', cc.ig.getMapName());
 			}
 		});
+
+		this._hooks.hookEnemyHP((name, hp) => {
+			if (sc.options.get('printEvents')) {
+				// eslint-disable-next-line no-console
+				console.log('damage', name, hp);
+			}
+		});
 	}
 }
 
