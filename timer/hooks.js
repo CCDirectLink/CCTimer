@@ -1,6 +1,5 @@
-export class Hooks {
-
-	hookNewGameButton(callback) {
+export class Hook {
+	static newGameButton(callback) {
 		sc.CrossCode.inject({
 			start(...args) {
 				callback(...args);
@@ -9,16 +8,19 @@ export class Hooks {
 		});
 	}
 
-	hookLoadMap(callback) {
-		sc.CrossCode.inject({
-			loadLevel(...args) {
-				callback(...args);
-				return this.parent(...args);
-			}
+	static loadMap(callback) {
+		ig.game.addons.levelLoaded.push({
+			onLevelLoaded: callback
 		});
 	}
 
-	hookVarSet(callback) {
+	static update(callback) {
+		ig.game.addons.preUpdate.push({
+			onPreUpdate: callback
+		});
+	}
+
+	static varSet(callback) {
 		ig.Vars.inject({
 			set(...args) {
 				callback(...args);
@@ -27,9 +29,9 @@ export class Hooks {
 		});
 	}
 
-	hookStatsSet(callback) {
+	static statsSet(callback) {
 		let stats = sc.stats.values;
-		Object.defineProperty(cc.sc.stats, 'values', {
+		Object.defineProperty(sc.stats, 'values', {
 			get: () => stats,
 			set: val => {
 				stats = callback(val, stats) || val;
@@ -37,7 +39,7 @@ export class Hooks {
 		});
 	}
 
-	hookEnemyHP(callback) {
+	static enemyHP(callback) {
 		sc.CombatParams.inject({
 			init: function(...args) {
 				const result = this.parent(...args);

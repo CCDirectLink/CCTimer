@@ -1,9 +1,7 @@
-import { Hooks } from './hooks.js';
+import { Hook } from './hooks.js';
 
 export class EventManager {
 	constructor() {
-		this._hooks = new Hooks();
-
 		this.onstart = () => {};
 		this.onsplit = () => {};
 		this.onunload = () => {};
@@ -16,15 +14,9 @@ export class EventManager {
 	start(config) {
 		this._config = config;
 
-		this._hooks.hookNewGameButton(() => this._onStart());
-		this._hooks.hookEnemyHP((name, hp) => this._check({ name, hp }));
-		const self = this;
-		ig.Game.inject({
-			update(...args) {
-				self._update();
-				this.parent(...args);
-			}
-		});
+		Hook.newGameButton(() => this._onStart());
+		Hook.enemyHP((name, hp) => this._check({ name, hp }));
+		Hook.update(() => this._update());
 		window.addEventListener('unload', () => this.onunload());
 	}
 

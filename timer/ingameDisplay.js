@@ -1,3 +1,5 @@
+import { Hook } from './hooks.js';
+
 export class IngameDisplay {
 	initialize() {
 		const timer = this.timer = document.createElement('h1');
@@ -12,7 +14,7 @@ export class IngameDisplay {
 	}
 
 	run() {
-		simplify.registerUpdate(() => this._update());
+		Hook.update(() => this._update());
 	}
 
 	_update() {

@@ -3,7 +3,7 @@ import { State } from './stateManager.js';
 export class Config {
 	constructor(mod) {
 		/** @type {string} */
-		this._modFolder = mod.baseDirectory.substr(7);
+		this._modFolder = '/' + mod.baseDirectory;
 		/** @type {[{type: string}] | {time: 'igt' | 'state', filter?: {include?: string[], exclude?: string[]}, splits: {type: 'start' | 'loadmap' | 'eventtriggered' | 'combined', name?: string, once?: boolean, value?: any, conditions?: any[]}[]}} */
 		this._config = null;
 
