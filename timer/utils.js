@@ -4,6 +4,7 @@ export class Utils {
 	addOptions() {
 		ig.lang.labels.sc.gui.options['dontResetTimerOnDeath'] = {name: 'Don\'t reset timer on death', description: 'Don\'t reset timer on death. \\c[1]WARNING: This will affect the actual IGT!'};
 		ig.lang.labels.sc.gui.options['printEvents'] = {name: 'Print all events', description: 'Print all possible events that can be split on. Use "Log level: Default"'};
+		ig.lang.labels.sc.gui.options['roomTimer'] = {name: 'Display room timer', description: 'Displays a room timer'};
 		ig.lang.labels.sc.gui.options.headers['ccTimer'] = 'CCTimer';
 		sc.OPTIONS_DEFINITION.dontResetTimerOnDeath = {
 			cat: sc.OPTION_CATEGORY.GENERAL,
@@ -14,6 +15,12 @@ export class Utils {
 			type: 'CHECKBOX',
 		};
 		sc.OPTIONS_DEFINITION.printEvents = {
+			cat: sc.OPTION_CATEGORY.GENERAL,
+			init: false,
+			restart: true,
+			type: 'CHECKBOX',
+		};
+		sc.OPTIONS_DEFINITION.roomTimer = {
 			cat: sc.OPTION_CATEGORY.GENERAL,
 			init: false,
 			restart: true,

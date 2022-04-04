@@ -1,6 +1,15 @@
 import { Hook } from './hooks.js';
 
 export class IngameDisplay {
+	/**
+	 * 
+	 * @param {() => number)} getTimer 
+	 */
+	constructor(getTimer) {
+		this.getTimer = getTimer;
+		this.isRoomTimer = false;
+	}
+
 	initialize() {
 		const timer = this.timer = document.createElement('h1');
 		timer.style.position = 'fixed';
@@ -18,8 +27,8 @@ export class IngameDisplay {
 	}
 
 	_update() {
-		const t = sc.stats.getMap('player', 'playtime');
-		if(!t) {
+		const t = this.getTimer();
+		if(!t || (!this.isRoomTimer && sc.options.get('roomTimer'))) {
 			return this.timer.innerHTML  = '';
 		}
 		const hour =  parseInt(t / 60 / 60);

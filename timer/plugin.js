@@ -4,6 +4,8 @@ import { Config } from './config.js';
 import { EventManager } from './eventManager.js';
 import { Utils } from './utils.js';
 import { StateManager } from './stateManager.js';
+import { RoomtimeDisplay } from './roomtimeDisplay.js';
+import { Hook } from './hooks.js';
 
 export default class CCTimer extends Plugin {
 	constructor(mod) {
@@ -16,12 +18,17 @@ export default class CCTimer extends Plugin {
 		utils.addOptions();
 		utils.printEvents();
 
-		const ingameDisplay = this.ingameDisplay = new IngameDisplay();
+		const ingameDisplay = this.ingameDisplay = new IngameDisplay(() => sc.stats.getMap('player', 'playtime'));
 		ingameDisplay.initialize();
 		if (!window.require) {
 			ingameDisplay.run();
 			return;
 		}
+
+		this.roomDisplay = new RoomtimeDisplay();
+		this.roomDisplay.initialize();
+		Hook.loadMap(() => this.roomDisplay.start());
+		Hook.update(() => this.roomDisplay.update());
 
 		const connection = this.connection = new ConnectionManager();
 		connection.connect(() => this.setupLivesplit(), () => ingameDisplay.run());

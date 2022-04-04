@@ -34,6 +34,16 @@ export class EventManager {
 				continue;
 			}
 
+			if (event.type === 'start' && event.on) {
+				const [start] = this._checkEvent(event.on);
+				if (start) {
+					this.onstart();
+					event.disabled = true;
+				}
+
+				continue;	
+			}
+
 			const [split, once] = this._checkEvent(event, action);
 			if (split) {
 				console.log('[timer] Split event: ', event);
@@ -53,6 +63,12 @@ export class EventManager {
 		for (const event of this._config.splits) {
 			if (event.disabled || event.type !== 'start') {
 				continue;
+			}
+			if (event.on) {
+				const [start] = this._checkEvent(event.on);
+				if (!start) {
+					continue;
+				}
 			}
 
 			this.onstart();
