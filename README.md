@@ -83,6 +83,23 @@ The `"start"` split is a special split that starts the timer when any map is loa
 }
 ```
 
+### Conditional start
+
+The `"start"` split may include a condition that causes the run to start.
+
+#### Example
+```json
+{
+	"splits": [{
+		"type": "start",
+		"on": {
+			"type": "loadmap",
+			"name": "rhombus-sqr.central-inner",
+		}
+	}]
+}
+```
+
 ### Loadmap
 
 `"loadmap"` checks if the map that is loaded is the same that is in `"name"`.
