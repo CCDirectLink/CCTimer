@@ -8,6 +8,15 @@ export class Hook {
 		});
 	}
 
+	static startPresetButton(callback) {
+		sc.SavePreset.inject({
+			load(...args) {
+				callback(...args);
+				return this.parent(...args);
+			}
+		});
+	}
+
 	static loadMap(callback) {
 		ig.game.addons.levelLoaded.push({
 			onLevelLoaded: callback

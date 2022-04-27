@@ -15,6 +15,7 @@ export class EventManager {
 		this._config = config;
 
 		Hook.newGameButton(() => this._onStart());
+		Hook.startPresetButton(() => this._onStart());
 		Hook.enemyHP((name, hp) => this._check({ name, hp }));
 		Hook.update(() => this._update());
 		window.addEventListener('unload', () => this.onunload());
@@ -79,6 +80,10 @@ export class EventManager {
 		}
 	}
 
+	_isOldMapState() {
+		return sc.model.isTitle() || sc.model.isLoadGame() || sc.model.isNewGame();
+	}
+
 	/**
 	 * 
 	 * @param {{type: 'start' | 'loadmap' | 'eventtriggered' | 'combined' | 'damage', name?: string, once?: boolean, value?: any, conditions?: any[], below?: number, above?: number}} event 
@@ -89,7 +94,7 @@ export class EventManager {
 		switch(event.type) {
 		case 'loadmap': {
 			const map = ig.game.mapName;
-			if(map === event.name){
+			if(map === event.name && !this._isOldMapState()) {
 				return [true, event.once];
 			}
 			break;
