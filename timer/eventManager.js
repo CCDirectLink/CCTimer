@@ -9,20 +9,70 @@ export class EventManager {
 
 	/**
 	 * This should only be called once
-	 * @param {import('./config').Config} config 
+	 * @param {import('./config').Config[]} configs 
 	 */
-	start(config) {
-		this._config = config;
+	start(configs) {
+		this._configs = configs;
+		this._activeConfig = null;
+		this._awaitingStart = false;
 
-		Hook.newGameButton(() => this._onStart());
-		Hook.startPresetButton(() => this._onStart());
+		Hook.onTitlescreen(() => this._cancelAwaitStart());
+		Hook.newGameButton(() => this._onStart('newGame'));
+		Hook.startPresetButton(() => this._onStart('preset'));
 		Hook.enemyHP((name, hp) => this._check({ name, hp }));
 		Hook.update(() => this._update());
 		window.addEventListener('unload', () => this.onunload());
 	}
 
+	_cancelAwaitStart() {
+		if(this._awaitingStart) {
+			this._awaitingStart = false;
+			console.log('[timer] Cancelled Awaiting Start Condition');
+		}
+	}
+
 	_update() {
-		this._check();
+		if (this._activeConfig) {
+			this._check();
+		}
+		else if(this._awaitingStart) {
+			this._checkStart('update');
+		}
+	}
+
+	_resetConfigs() {
+		for (const config of this._configs) {
+			config.reset();
+		}
+	}
+
+	_checkStart(startType) {
+		for(const config of this._configs) {
+			for(const event of config.splits) {
+				if (event.disabled || event.type !== 'start') {
+					continue;
+				}
+				if(!event.on && startType != 'newGame') continue; //empty start condition must be new game
+
+				if (event.on) {
+					const [start] = this._checkEvent(event.on);
+					if (!start) {
+						continue;
+					}
+				}
+	
+				this.onstart();
+	
+				if (event.once) {
+					event.disabled = true;
+				}
+
+				this._activeConfig = config;
+				this._awaitingStart = false;
+				console.log(`[timer] Start Condition Met for Config: ${config.fileName}`);
+				return;
+			}
+		}
 	}
 
 	/**
@@ -30,7 +80,12 @@ export class EventManager {
 	 * @param {{type: 'damage', name: string, hp: number}} [action] 
 	 */
 	_check(action) {
-		for (const event of this._config.splits) {
+		if(!this._activeConfig) {
+			console.log(`[timer] Error: Called _check() without active config`);
+			return;
+		}
+
+		for (const event of this._activeConfig.splits) {
 			if (event.disabled) {
 				continue;
 			}
@@ -58,26 +113,12 @@ export class EventManager {
 		}
 	}
 
-	_onStart() {
-		this._config.reset();
-
-		for (const event of this._config.splits) {
-			if (event.disabled || event.type !== 'start') {
-				continue;
-			}
-			if (event.on) {
-				const [start] = this._checkEvent(event.on);
-				if (!start) {
-					continue;
-				}
-			}
-
-			this.onstart();
-
-			if (event.once) {
-				event.disabled = true;
-			}
-		}
+	_onStart(type) {
+		console.log(`[timer] Awaiting start condition for type: ${type}`);
+		this._resetConfigs();
+		this._activeConfig = null;
+		this._awaitingStart = true;
+		this._checkStart(type);
 	}
 
 	_isOldMapState() {

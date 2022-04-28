@@ -11,6 +11,7 @@ export default class CCTimer extends Plugin {
 	constructor(mod) {
 		super();
 		this.mod = mod;
+		this.splitsDir = 'autosplitters/'; 
 	}
     
 	main() {
@@ -38,18 +39,35 @@ export default class CCTimer extends Plugin {
 		Utils.log('[timer] Connected to livesplit');
 		Utils.log('[timer] Loading config..');
 
-		const config = new Config(this.mod);
-		await config.load('settings.json');
+		const configs = [];
 
-		Utils.log('[timer] Loaded config: ', config);
+		//Global Split Settings
+		const mainConfig = new Config(this.mod);
+		await mainConfig.load('settings.json');
+		Utils.log('[timer] Loaded main config: ', mainConfig);
+		configs.push(mainConfig);
 
-		if (config.isIGT) {
+		//Optional Additional Autosplitters (ex. for segments)
+		const fs = require('fs');
+		const configFiles = fs.readdirSync(this.mod.baseDirectory + this.splitsDir);
+
+		for (const file of configFiles) {
+			if(file.endsWith('.json')) {
+				const newConfig = new Config(this.mod);
+				await newConfig.load(this.splitsDir + file);
+				configs.push(newConfig);
+			}
+		}
+
+		console.log(`[timer] Loaded ${configs.length} splits files.`);
+
+		if (mainConfig.isIGT) {
 			Utils.log('[timer] Using original ingame time');
 			this.utils.updateTime(this.connection);
 		} else {
 			Utils.log('[timer] Using custom time filter');
 			const stateManager = new StateManager();
-			stateManager.filterStates(config.filter);
+			stateManager.filterStates(mainConfig.filter);
 			stateManager.onStateChanged(running => this.connection.sendPaused(!running));
 		}
 
@@ -58,7 +76,7 @@ export default class CCTimer extends Plugin {
 		events.onstart = () => this.connection.sendStart();
 		events.onsplit = () => this.connection.sendSplit();
 		events.onunload = () => this.connection.sendPaused(false);
-		events.start(config);
+		events.start(configs);
 		Utils.log('[timer] Hooked events');
 	}
 }

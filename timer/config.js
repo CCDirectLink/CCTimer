@@ -14,11 +14,15 @@ export class Config {
 		/** @type {(newValue: string, oldValue: string) => boolean} */
 		this.filter = () => true;
 		this.isIGT = true;
+
+		this.fileName = null;
 	}
 
 	async load(name) {
 		const req = await fetch(this._modFolder + name);
 		this._config = await req.json();
+
+		this.fileName = name;
 
 		if (this._config instanceof Array) { // Legacy support
 			this._originalSplits = this._config;

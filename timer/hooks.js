@@ -1,4 +1,13 @@
 export class Hook {
+	static onTitlescreen(callback) {
+		sc.GameModel.inject({
+			enterTitle(...args) {
+				callback(...args);
+				return this.parent(...args);
+			}
+		});
+	}
+
 	static newGameButton(callback) {
 		sc.CrossCode.inject({
 			start(...args) {
