@@ -81,7 +81,7 @@ export class EventManager {
 	 */
 	_check(action) {
 		if(!this._activeConfig) {
-			console.log(`[timer] Error: Called _check() without active config`);
+			//console.log(`[timer] Error: Called _check() without active config`);
 			return;
 		}
 
