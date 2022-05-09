@@ -19,7 +19,7 @@ export class EventManager {
 		Hook.onTitlescreen(() => this._cancelAwaitStart());
 		Hook.newGameButton(() => this._onStart('newGame'));
 		Hook.startPresetButton(() => this._onStart('preset'));
-		Hook.enemyHP((name, hp) => this._check({ name, hp }));
+		Hook.enemyHP((name, hp) => { this._awaitingStart ? this._checkStart('damage',{ name, hp }) : this._check({ name, hp }) });
 		Hook.update(() => this._update());
 		window.addEventListener('unload', () => this.onunload());
 	}
@@ -46,7 +46,7 @@ export class EventManager {
 		}
 	}
 
-	_checkStart(startType) {
+	_checkStart(startType, action) {
 		for(const config of this._configs) {
 			for(const event of config.splits) {
 				if (event.disabled || event.type !== 'start') {
@@ -55,7 +55,7 @@ export class EventManager {
 				if(!event.on && startType != 'newGame') continue; //empty start condition must be new game
 
 				if (event.on) {
-					const [start] = this._checkEvent(event.on);
+					const [start] = this._checkEvent(event.on, action);
 					if (!start) {
 						continue;
 					}
