@@ -18,7 +18,7 @@ export class EventManager {
 
 		Hook.onTitlescreen(() => this._cancelAwaitStart());
 		Hook.newGameButton(() => this._onStart('newGame'));
-		Hook.startPresetButton(() => this._onStart('preset'));
+		Hook.startPresetButton((preset, slotIndex) => this._onStart('preset', preset.slots[slotIndex].title.value));
 		Hook.enemyHP((name, hp) => { this._awaitingStart ? this._checkStart('damage',{ name, hp }) : this._check({ name, hp }) });
 		Hook.update(() => this._update());
 		window.addEventListener('unload', () => this.onunload());
@@ -113,12 +113,12 @@ export class EventManager {
 		}
 	}
 
-	_onStart(type) {
-		console.log(`[timer] Awaiting start condition for type: ${type}`);
+	_onStart(type, presetName) {
+		console.log(`[timer] Awaiting start condition for type: ${type}` + (presetName ? `, preset: ${presetName}` : ''));
 		this._resetConfigs();
 		this._activeConfig = null;
 		this._awaitingStart = true;
-		this._checkStart(type);
+		this._checkStart(type, presetName);
 	}
 
 	_isOldMapState() {
@@ -154,6 +154,12 @@ export class EventManager {
 				if (typeof event.above === 'number' && action.hp < event.above) {
 					break;
 				}
+				return [true, event.once];
+			}
+			break;
+		}
+		case 'preset': {
+			if(action && action === event.name) {
 				return [true, event.once];
 			}
 			break;

@@ -20,7 +20,7 @@ export class Hook {
 	static startPresetButton(callback) {
 		sc.SavePreset.inject({
 			load(...args) {
-				callback(...args);
+				callback(this, ...args);
 				return this.parent(...args);
 			}
 		});
