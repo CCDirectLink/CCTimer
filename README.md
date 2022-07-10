@@ -145,6 +145,23 @@ The `"start"` split may include a condition that causes the run to start.
 }
 ```
 
+### Preset
+
+`"preset"` checks if a specific preset was loaded (see [CCPresetRevival](https://github.com/CCDirectLink/CCPresetRevival)). `"name"` will be checked against the `"title"` property of the loaded preset.
+
+#### Example
+
+![image](https://user-images.githubusercontent.com/32598419/178163074-74758e97-96cf-4ad6-a8ca-e922e57b738f.png)
+
+```json
+{
+	"splits": [{
+		"type": "preset",
+		"name": "Temple Mines"
+	}]
+}
+```
+
 ### Combined
 
 The `"combined"` split is triggered if all `"conditions"` apply. Every condition is a split and can contain `"once": true`.
@@ -219,3 +236,18 @@ The `"combined"` split is triggered if all `"conditions"` apply. Every condition
 	}]
 }
 ```
+
+## (Optional) Multiple Autosplitters
+
+If desired, several autosplitters can be simultaneously loaded and selected from. This feature is most useful in combination with [CCPresetRevival](https://github.com/CCDirectLink/CCPresetRevival).
+
+Upon loading a preset or starting at New Game, the timer mod will begin waiting for the first `"start"` condition from one of the autosplitters to fire. Once this occurs, the autosplitter that fired will be used for splits. 
+
+Opening another preset or restarting at New Game will reset back to awaiting a `"start"` condition, allowing for several autosplitters to be used in the same game session. 
+
+### Setup
+
+1. If not present, create an `autosplitters` directory within the `timer` mod folder (`<CrossCode Root Directory>/assets/mods/timer/autosplitters/`).
+2. Place your additional autosplitters in this directory. These should be formatted the same way `settings.json` is, but they can be named however you'd like as long as they end in `.json`.
+
+Note: Time and State settings will be derived from the main `settings.json` autosplitter.
