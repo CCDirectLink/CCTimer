@@ -1,5 +1,7 @@
 import { Hook } from './hooks.js';
 
+const activeConfigKey = "CCTimer_activeConfig";
+
 export class EventManager {
 	constructor() {
 		this.onstart = () => {};
@@ -13,7 +15,7 @@ export class EventManager {
 	 */
 	start(configs) {
 		this._configs = configs;
-		this._activeConfig = null;
+		this._activeConfig = JSON.parse(localStorage.getItem(activeConfigKey));
 		this._awaitingStart = false;
 
 		Hook.onTitlescreen(() => this._cancelAwaitStart());
@@ -69,6 +71,7 @@ export class EventManager {
 
 				this._activeConfig = config;
 				this._awaitingStart = false;
+				localStorage.setItem(activeConfigKey, JSON.stringify(this._activeConfig));
 				console.log(`[timer] Start Condition Met for Config: ${config.fileName}`);
 				return;
 			}
@@ -95,6 +98,7 @@ export class EventManager {
 				if (start) {
 					this.onstart();
 					event.disabled = true;
+					localStorage.setItem(activeConfigKey, JSON.stringify(this._activeConfig));
 				}
 
 				continue;	
@@ -104,11 +108,13 @@ export class EventManager {
 			if (split) {
 				console.log('[timer] Split event: ', event);
 				this.onsplit();
-			}
 
-			if (once) {
-				event.disabled = true;
-				console.log('[timer] Disabled event: ', event);
+				if (once) {
+					event.disabled = true;
+					console.log('[timer] Disabled event: ', event);
+				}
+				
+				localStorage.setItem(activeConfigKey, JSON.stringify(this._activeConfig));
 			}
 		}
 	}
