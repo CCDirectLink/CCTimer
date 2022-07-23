@@ -13,7 +13,7 @@ export default class CCTimer extends Plugin {
 		this.mod = mod;
 		this.splitsDir = 'autosplitters/'; 
 	}
-    
+
 	main() {
 		const utils = this.utils = new Utils();
 		utils.addOptions();
@@ -34,7 +34,7 @@ export default class CCTimer extends Plugin {
 		const connection = this.connection = new ConnectionManager();
 		connection.connect(() => this.setupLivesplit(), () => ingameDisplay.run());
 	}
-    
+
 	async setupLivesplit() {
 		Utils.log('[timer] Connected to livesplit');
 		Utils.log('[timer] Loading config..');
@@ -49,17 +49,20 @@ export default class CCTimer extends Plugin {
 
 		//Optional Additional Autosplitters (ex. for segments)
 		const fs = require('fs');
-		const configFiles = fs.readdirSync(this.mod.baseDirectory + this.splitsDir);
 
-		for (const file of configFiles) {
-			if(file.endsWith('.json')) {
-				const newConfig = new Config(this.mod);
-				await newConfig.load(this.splitsDir + file);
-				configs.push(newConfig);
+		if (fs.existsSync(this.mod.baseDirectory + this.splitsDir)) {
+			const configFiles = fs.readdirSync(this.mod.baseDirectory + this.splitsDir);
+
+			for (const file of configFiles) {
+				if (file.endsWith('.json')) {
+					const newConfig = new Config(this.mod);
+					await newConfig.load(this.splitsDir + file);
+					configs.push(newConfig);
+				}
 			}
 		}
 
-		console.log(`[timer] Loaded ${configs.length} splits files.`);
+		Utils.log(`[timer] Loaded ${configs.length} splits files.`);
 
 		if (mainConfig.isIGT) {
 			Utils.log('[timer] Using original ingame time');
