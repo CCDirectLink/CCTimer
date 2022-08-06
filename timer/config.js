@@ -14,11 +14,15 @@ export class Config {
 		/** @type {(newValue: string, oldValue: string) => boolean} */
 		this.filter = () => true;
 		this.isIGT = true;
+
+		this.fileName = null;
 	}
 
 	async load(name) {
 		const req = await fetch(this._modFolder + name);
 		this._config = await req.json();
+
+		this.fileName = name;
 
 		if (this._config instanceof Array) { // Legacy support
 			this._originalSplits = this._config;
@@ -34,32 +38,7 @@ export class Config {
 	}
 
 	reset() {
-		this.splits = [];
-		this._copyArray(this.splits, this._originalSplits);
-	}
-
-	/**
-	 * 
-	 * @param {{type: 'start' | 'loadmap' | 'eventtriggered' | 'combined', name?: string, once?: boolean, value?: any, conditions?: any[]}} source 
-	 * @returns {{type: 'start' | 'loadmap' | 'eventtriggered' | 'combined', name?: string, once?: boolean, value?: any, conditions?: any[]}} 
-	 */
-	_copy(source) {
-		const result = Object.assign({}, source);
-		if (result.type === 'combined') {
-			result.conditions = [];
-			this._copyArray(result.conditions, source.conditions);
-		}
-		return result;
-	}
-	/**
-	 * 
-	 * @param {{type: 'start' | 'loadmap' | 'eventtriggered' | 'combined', name?: string, once?: boolean, value?: any, conditions?: any[]}[]} target 
-	 * @param {{type: 'start' | 'loadmap' | 'eventtriggered' | 'combined', name?: string, once?: boolean, value?: any, conditions?: any[]}[]} source 
-	 */
-	_copyArray(target, source) {
-		for (const event of source) {
-			target.push(this._copy(event));
-		}
+		this.splits = JSON.parse(JSON.stringify(this._originalSplits));
 	}
 
 	/**

@@ -1,5 +1,7 @@
 import { Hook } from './hooks.js';
 
+const activeConfigKey = "CCTimer_activeConfig";
+
 export class EventManager {
 	constructor() {
 		this.onstart = () => {};
@@ -9,19 +11,71 @@ export class EventManager {
 
 	/**
 	 * This should only be called once
-	 * @param {import('./config').Config} config 
+	 * @param {import('./config').Config[]} configs 
 	 */
-	start(config) {
-		this._config = config;
+	start(configs) {
+		this._configs = configs;
+		this._activeConfig = JSON.parse(localStorage.getItem(activeConfigKey));
+		this._awaitingStart = false;
 
-		Hook.newGameButton(() => this._onStart());
-		Hook.enemyHP((name, hp) => this._check({ name, hp }));
+		Hook.onTitlescreen(() => this._cancelAwaitStart());
+		Hook.newGameButton(() => this._onStart('newGame'));
+		Hook.startPresetButton((preset, slotIndex) => this._onStart('preset', preset.slots[slotIndex].title.value));
+		Hook.enemyHP((name, hp) => { this._awaitingStart ? this._checkStart('damage',{ name, hp }) : this._check({ name, hp }) });
 		Hook.update(() => this._update());
 		window.addEventListener('unload', () => this.onunload());
 	}
 
+	_cancelAwaitStart() {
+		if(this._awaitingStart) {
+			this._awaitingStart = false;
+			console.log('[timer] Cancelled Awaiting Start Condition');
+		}
+	}
+
 	_update() {
-		this._check();
+		if (this._activeConfig) {
+			this._check();
+		}
+		else if(this._awaitingStart) {
+			this._checkStart('update');
+		}
+	}
+
+	_resetConfigs() {
+		for (const config of this._configs) {
+			config.reset();
+		}
+	}
+
+	_checkStart(startType, action) {
+		for(const config of this._configs) {
+			for(const event of config.splits) {
+				if (event.disabled || event.type !== 'start') {
+					continue;
+				}
+				if(!event.on && startType != 'newGame') continue; //empty start condition must be new game
+
+				if (event.on) {
+					const [start] = this._checkEvent(event.on, action);
+					if (!start) {
+						continue;
+					}
+				}
+	
+				this.onstart();
+	
+				if (event.once) {
+					event.disabled = true;
+				}
+
+				this._activeConfig = config;
+				this._awaitingStart = false;
+				localStorage.setItem(activeConfigKey, JSON.stringify(this._activeConfig));
+				console.log(`[timer] Start Condition Met for Config: ${config.fileName}`);
+				return;
+			}
+		}
 	}
 
 	/**
@@ -29,7 +83,12 @@ export class EventManager {
 	 * @param {{type: 'damage', name: string, hp: number}} [action] 
 	 */
 	_check(action) {
-		for (const event of this._config.splits) {
+		if(!this._activeConfig) {
+			//console.log(`[timer] Error: Called _check() without active config`);
+			return;
+		}
+
+		for (const event of this._activeConfig.splits) {
 			if (event.disabled) {
 				continue;
 			}
@@ -39,6 +98,7 @@ export class EventManager {
 				if (start) {
 					this.onstart();
 					event.disabled = true;
+					localStorage.setItem(activeConfigKey, JSON.stringify(this._activeConfig));
 				}
 
 				continue;	
@@ -48,35 +108,27 @@ export class EventManager {
 			if (split) {
 				console.log('[timer] Split event: ', event);
 				this.onsplit();
-			}
 
-			if (once) {
-				event.disabled = true;
-				console.log('[timer] Disabled event: ', event);
+				if (once) {
+					event.disabled = true;
+					console.log('[timer] Disabled event: ', event);
+				}
+				
+				localStorage.setItem(activeConfigKey, JSON.stringify(this._activeConfig));
 			}
 		}
 	}
 
-	_onStart() {
-		this._config.reset();
+	_onStart(type, presetName) {
+		console.log(`[timer] Awaiting start condition for type: ${type}` + (presetName ? `, preset: ${presetName}` : ''));
+		this._resetConfigs();
+		this._activeConfig = null;
+		this._awaitingStart = true;
+		this._checkStart(type, presetName);
+	}
 
-		for (const event of this._config.splits) {
-			if (event.disabled || event.type !== 'start') {
-				continue;
-			}
-			if (event.on) {
-				const [start] = this._checkEvent(event.on);
-				if (!start) {
-					continue;
-				}
-			}
-
-			this.onstart();
-
-			if (event.once) {
-				event.disabled = true;
-			}
-		}
+	_isOldMapState() {
+		return sc.model.isTitle() || sc.model.isLoadGame() || sc.model.isNewGame();
 	}
 
 	/**
@@ -89,7 +141,7 @@ export class EventManager {
 		switch(event.type) {
 		case 'loadmap': {
 			const map = ig.game.mapName;
-			if(map === event.name){
+			if(map === event.name && !this._isOldMapState()) {
 				return [true, event.once];
 			}
 			break;
@@ -108,6 +160,12 @@ export class EventManager {
 				if (typeof event.above === 'number' && action.hp < event.above) {
 					break;
 				}
+				return [true, event.once];
+			}
+			break;
+		}
+		case 'preset': {
+			if(action && action === event.name) {
 				return [true, event.once];
 			}
 			break;
