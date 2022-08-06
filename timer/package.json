@@ -3,7 +3,7 @@
 	"plugin": "plugin.js",
 	"homepage": "https://github.com/CCDirectLink/CCTimer",
 	"description": "A speedrun timer for CrossCode.",
-	"version": "2.4.0",
+	"version": "2.5.0",
 	"ccmodDependencies": {
 		"ccloader": "^2.19.0",
 		"Simplify": "^2.9.0"
