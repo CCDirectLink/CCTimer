@@ -21,7 +21,8 @@ export class EventManager {
 		Hook.onTitlescreen(() => this._cancelAwaitStart());
 		Hook.newGameButton(() => this._onStart('newGame'));
 		Hook.startPresetButton((preset, slotIndex) => this._onStart('preset', preset.slots[slotIndex].title.value));
-		Hook.enemyHP((name, hp) => { this._awaitingStart ? this._checkStart('damage',{ name, hp }) : this._check({ name, hp }) });
+		Hook.enemyHP((name, hp) => { this._awaitingStart ? this._checkStart('damage',{ type: 'damage', name, hp }) : this._check({ type: 'damage', name, hp }) });
+		Hook.teleport((mapName) => { this._awaitingStart ? this._checkStart('teleport',{ type: 'teleport', mapName }) : this._check({ type: 'teleport', mapName }) });
 		Hook.update(() => this._update());
 		window.addEventListener('unload', () => this.onunload());
 	}
@@ -80,7 +81,7 @@ export class EventManager {
 
 	/**
 	 * 
-	 * @param {{type: 'damage', name: string, hp: number}} [action] 
+	 * @param {{type: 'damage', name: string, hp: number} | {type: 'teleport', mapName: string}} [action] 
 	 */
 	_check(action) {
 		if(!this._activeConfig) {
@@ -124,11 +125,7 @@ export class EventManager {
 		this._resetConfigs();
 		this._activeConfig = null;
 		this._awaitingStart = true;
-		this._checkStart(type, presetName);
-	}
-
-	_isOldMapState() {
-		return sc.model.isTitle() || sc.model.isLoadGame() || sc.model.isNewGame();
+		this._checkStart(type, { type: 'preset', presetName});
 	}
 
 	/**
@@ -140,9 +137,11 @@ export class EventManager {
 	_checkEvent(event, action) {
 		switch(event.type) {
 		case 'loadmap': {
-			const map = ig.game.mapName;
-			if(map === event.name && !this._isOldMapState()) {
-				return [true, event.once];
+			if (action.type === 'teleport') {
+				const map = action.mapName;
+				if(map === event.name || !event.name) {
+					return [true, event.once];
+				}
 			}
 			break;
 		}
@@ -153,7 +152,7 @@ export class EventManager {
 			break;
 		}
 		case 'damage': {
-			if (action && action.name === event.name) {
+			if (action && action.type === 'damage' && action.name === event.name) {
 				if (typeof event.below === 'number' && action.hp > event.below) {
 					break;
 				}
@@ -165,7 +164,7 @@ export class EventManager {
 			break;
 		}
 		case 'preset': {
-			if(action && action === event.name) {
+			if(action && action.type === 'preset' && action.presetName === event.name) {
 				return [true, event.once];
 			}
 			break;

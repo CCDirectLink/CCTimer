@@ -38,6 +38,12 @@ export class Hook {
 		});
 	}
 
+	static teleport(callback) {
+		ig.game.addons.teleport.push({
+			onTeleport: callback
+		})
+	}
+
 	static varSet(callback) {
 		ig.Vars.inject({
 			set(...args) {
