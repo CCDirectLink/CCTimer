@@ -44,6 +44,14 @@ export class Hook {
 		})
 	}
 
+	//Used to check splits. Does not include var name.
+	static varChanged(callback) {
+		ig.game.addons.varsChanged.push({
+			onVarsChanged: callback
+		})
+	}
+	
+	//Only called for ig.vars.set to print events to console. Includes var name.
 	static varSet(callback) {
 		ig.Vars.inject({
 			set(...args) {

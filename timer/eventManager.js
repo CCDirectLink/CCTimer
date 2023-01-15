@@ -21,9 +21,9 @@ export class EventManager {
 		Hook.onTitlescreen(() => this._cancelAwaitStart());
 		Hook.newGameButton(() => this._onStart('newGame'));
 		Hook.startPresetButton((preset, slotIndex) => this._onStart('preset', preset.slots[slotIndex].title.value));
-		Hook.enemyHP((name, hp) => { this._awaitingStart ? this._checkStart('damage',{ type: 'damage', name, hp }) : this._check({ type: 'damage', name, hp }) });
-		Hook.teleport((mapName) => { this._awaitingStart ? this._checkStart('teleport',{ type: 'teleport', mapName }) : this._check({ type: 'teleport', mapName }) });
-		Hook.update(() => this._update());
+		Hook.enemyHP((name, hp) => { this._awaitingStart ? this._checkStart('damage', { type: 'damage', name, hp }) : this._check({ type: 'damage', name, hp }) });
+		Hook.teleport((mapName) => { this._awaitingStart ? this._checkStart('teleport', { type: 'teleport', mapName }) : this._check({ type: 'teleport', mapName }) });
+		Hook.varChanged(() => {this._awaitingStart ? this._checkStart('vars', { type: 'vars' }) : this._check({ type: 'vars' }) });
 		window.addEventListener('unload', () => this.onunload());
 	}
 
@@ -31,15 +31,6 @@ export class EventManager {
 		if(this._awaitingStart) {
 			this._awaitingStart = false;
 			console.log('[timer] Cancelled Awaiting Start Condition');
-		}
-	}
-
-	_update() {
-		if (this._activeConfig) {
-			this._check();
-		}
-		else if(this._awaitingStart) {
-			this._checkStart('update');
 		}
 	}
 
@@ -137,7 +128,7 @@ export class EventManager {
 	_checkEvent(event, action) {
 		switch(event.type) {
 		case 'loadmap': {
-			if (action.type === 'teleport') {
+			if (action && action.type === 'teleport') {
 				const map = action.mapName;
 				if(map === event.name || !event.name) {
 					return [true, event.once];
@@ -146,7 +137,7 @@ export class EventManager {
 			break;
 		}
 		case 'eventtriggered': {
-			if(ig.vars.get(event.name) == event.value){
+			if(action && action.type === 'vars' && ig.vars.get(event.name) == event.value){
 				return [true, event.once];
 			}
 			break;
