@@ -28,7 +28,7 @@ export class EventManager {
 	}
 
 	_update() {
-		if(sc.control.resetSplitsPress()) {
+		if(ig.input.pressed('reset-splits')) {
 			this._resetAndAwaitStart();
 		}
 	}
