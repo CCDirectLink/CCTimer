@@ -5,7 +5,11 @@ export class Utils {
 		ig.lang.labels.sc.gui.options['dontResetTimerOnDeath'] = {name: 'Don\'t reset timer on death', description: 'Don\'t reset timer on death. \\c[1]WARNING: This will affect the actual IGT!'};
 		ig.lang.labels.sc.gui.options['printEvents'] = {name: 'Print all events', description: 'Print all possible events that can be split on. Use "Log level: Default"'};
 		ig.lang.labels.sc.gui.options['roomTimer'] = {name: 'Display room timer', description: 'Displays a room timer'};
+		ig.lang.labels.sc.gui.options['resetOnNewGame'] = {name: 'Reset splits on new game', description: 'Will check for split start conditions upon starting a new file.'};
+		ig.lang.labels.sc.gui.options['resetOnPreset'] = {name: 'Reset splits on preset', description: 'Will check for split start conditions upon starting a preset.'};
+		ig.lang.labels.sc.gui.options.controls.keys['reset-splits'] = 'Reset Splits';
 		ig.lang.labels.sc.gui.options.headers['ccTimer'] = 'CCTimer';
+
 		sc.OPTIONS_DEFINITION.dontResetTimerOnDeath = {
 			cat: sc.OPTION_CATEGORY.GENERAL,
 			hasDivider: true,
@@ -26,8 +30,26 @@ export class Utils {
 			restart: true,
 			type: 'CHECKBOX',
 		};
+		sc.OPTIONS_DEFINITION.resetOnNewGame = {
+			cat: sc.OPTION_CATEGORY.GENERAL,
+			init: true,
+			restart: true,
+			type: 'CHECKBOX',
+		};
+		sc.OPTIONS_DEFINITION.resetOnPreset = {
+			cat: sc.OPTION_CATEGORY.GENERAL,
+			init: true,
+			restart: true,
+			type: 'CHECKBOX',
+		};
 		if (sc.options.values.dontResetTimerOnDeath == null) {
 			sc.options.values.dontResetTimerOnDeath = false;
+		}
+		if(sc.options.values.resetOnNewGame == null) {
+			sc.options.values.resetOnNewGame = true;
+		}
+		if(sc.options.values.resetOnPreset == null) {
+			sc.options.values.resetOnPreset = true;
 		}
 
 		Hook.statsSet((val, stats) => {

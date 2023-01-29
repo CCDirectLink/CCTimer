@@ -251,3 +251,9 @@ Opening another preset or restarting at New Game will reset back to awaiting a `
 2. Place your additional autosplitters in this directory. These should be formatted the same way `settings.json` is, but they can be named however you'd like as long as they end in `.json`.
 
 Note: Time and State settings will be derived from the main `settings.json` autosplitter.
+
+## (Optional) Dependencies
+
+A **Reset Splits** hotkey is also optionally included, which can be relevant in cases where you need a `"start"` condition to fire without relying on loading a preset or starting at New Game.
+
+To make use of this, you'll need to install [input-api](https://github.com/CCDirectLink/input-api).

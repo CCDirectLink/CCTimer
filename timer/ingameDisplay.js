@@ -37,7 +37,7 @@ export class IngameDisplay {
 		if(hour <= 0) {
 			this.timer.innerHTML = min + ((sec < 10) ? ':0': ':') + sec;
 		} else {
-			this.timer.innerHTML = hour + ((min < 9) ? ':0': ':') + min + ((sec < 10) ? ':0': ':') + sec;
+			this.timer.innerHTML = hour + ((min < 10) ? ':0': ':') + min + ((sec < 10) ? ':0': ':') + sec;
 		}
 	}
 }

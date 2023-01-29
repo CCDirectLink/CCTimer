@@ -18,20 +18,46 @@ export class EventManager {
 		this._activeConfig = JSON.parse(localStorage.getItem(activeConfigKey));
 		this._awaitingStart = false;
 
-		Hook.onTitlescreen(() => this._cancelAwaitStart());
-		Hook.newGameButton(() => this._onStart('newGame'));
-		Hook.startPresetButton((preset, slotIndex) => this._onStart('preset', preset.slots[slotIndex].title.value));
-		Hook.enemyHP((name, hp) => { this._awaitingStart ? this._checkStart('damage', { type: 'damage', name, hp }) : this._check({ type: 'damage', name, hp }) });
-		Hook.teleport((mapName) => { this._awaitingStart ? this._checkStart('teleport', { type: 'teleport', mapName }) : this._check({ type: 'teleport', mapName }) });
-		Hook.varChanged(() => {this._awaitingStart ? this._checkStart('vars', { type: 'vars' }) : this._check({ type: 'vars' }) });
+		Hook.newGameButton(() => this._onNewGameButton());
+		Hook.startPresetButton((preset, slotIndex) => this._onStartPresetButton(preset, slotIndex));
+		Hook.update(() => this._update());
+		Hook.enemyHP((name, hp) => { this._check({ type: 'damage', name, hp }) });
+		Hook.teleport((mapName) => { this._check({ type: 'teleport', mapName }) });
+		Hook.varChanged(() => { this._check({ type: 'vars' }) });
 		window.addEventListener('unload', () => this.onunload());
 	}
 
-	_cancelAwaitStart() {
-		if(this._awaitingStart) {
-			this._awaitingStart = false;
-			console.log('[timer] Cancelled Awaiting Start Condition');
+	_update() {
+		if(ig.input.pressed('reset-splits')) {
+			this._resetAndAwaitStart();
 		}
+	}
+
+	_onNewGameButton() {
+		if(sc.options && sc.options.get('resetOnNewGame')) {
+			this._resetAndAwaitStart();
+		}
+
+		this._check({ type: 'newGame' });
+	}
+
+	_onStartPresetButton(preset, slotIndex) {
+		if(sc.options && sc.options.get('resetOnPreset')) {
+			this._resetAndAwaitStart();
+		}
+
+		this._check({ type:'preset', presetName: preset.slots[slotIndex].title.value } );
+	}
+
+	/**
+	 * Called either automatically (by new game / preset if enabled) or manually via a hotkey.
+	 * Resets all configs and tells the timer mod to await a start condition.
+	 */
+	_resetAndAwaitStart() {
+		this._resetConfigs();
+		this._activeConfig = null;
+		this._awaitingStart = true;
+		console.log(`[timer] Resetting Splits and now Awaiting a Start Condition`);
 	}
 
 	_resetConfigs() {
@@ -40,13 +66,22 @@ export class EventManager {
 		}
 	}
 
-	_checkStart(startType, action) {
+	/**
+	 * While no config is selected, all events will go through _checkStart() to see if
+	 * they match the start condition for one of the splitters.
+	 * 
+	 * If one is found that matches, that splitter will be set as the _activeConfig, and
+	 * splits will now go through _check() for that splitter alone.
+	 */
+	_checkStart(action) {
+		if(this._activeConfig || !this._awaitingStart) return;
+
 		for(const config of this._configs) {
 			for(const event of config.splits) {
 				if (event.disabled || event.type !== 'start') {
 					continue;
 				}
-				if(!event.on && startType != 'newGame') continue; //empty start condition must be new game
+				if(!event.on && action.type != 'newGame') continue; //empty start condition must be new game
 
 				if (event.on) {
 					const [start] = this._checkEvent(event.on, action);
@@ -71,12 +106,13 @@ export class EventManager {
 	}
 
 	/**
+	 * Once an _activeConfig has been assigned, all split events are handled here.
 	 * 
 	 * @param {{type: 'damage', name: string, hp: number} | {type: 'teleport', mapName: string}} [action] 
 	 */
 	_check(action) {
 		if(!this._activeConfig) {
-			//console.log(`[timer] Error: Called _check() without active config`);
+			this._checkStart(action);
 			return;
 		}
 
@@ -109,14 +145,6 @@ export class EventManager {
 				localStorage.setItem(activeConfigKey, JSON.stringify(this._activeConfig));
 			}
 		}
-	}
-
-	_onStart(type, presetName) {
-		console.log(`[timer] Awaiting start condition for type: ${type}` + (presetName ? `, preset: ${presetName}` : ''));
-		this._resetConfigs();
-		this._activeConfig = null;
-		this._awaitingStart = true;
-		this._checkStart(type, { type: 'preset', presetName});
 	}
 
 	/**
@@ -167,7 +195,7 @@ export class EventManager {
 			}
 				
 			for (let i = 0; i < conds.length; i++) {
-				const [split, once] = this._checkEvent(conds[i]);
+				const [split, once] = this._checkEvent(conds[i], action);
 				if (!split) {
 					return [false, false];
 				}
@@ -177,7 +205,6 @@ export class EventManager {
 					i--;
 				}
 			}
-
 
 			if (conds.length === 0) {
 				return [true, true];

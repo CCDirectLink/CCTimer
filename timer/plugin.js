@@ -35,6 +35,21 @@ export default class CCTimer extends Plugin {
 		connection.connect(() => this.setupLivesplit(), () => ingameDisplay.run());
 	}
 
+	prestart() {
+		if(versions.hasOwnProperty('input-api')) {
+			sc.OPTIONS_DEFINITION["keys-reset-splits"] = {
+				cat: sc.OPTION_CATEGORY.CONTROLS,
+				hasDivider: true,
+				header: 'ccTimer',
+				init: {
+					key1: ig.KEY.SEMICOLON,
+					key2: void 0
+				},
+				type: 'CONTROLS',
+			};
+		}
+	}
+
 	async setupLivesplit() {
 		Utils.log('[timer] Connected to livesplit');
 		Utils.log('[timer] Loading config..');
