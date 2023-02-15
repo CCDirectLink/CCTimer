@@ -22,6 +22,7 @@ export class EventManager {
 		Hook.startPresetButton((preset, slotIndex) => this._onStartPresetButton(preset, slotIndex));
 		Hook.update(() => this._update());
 		Hook.enemyHP((name, hp) => { this._check({ type: 'damage', name, hp }) });
+		Hook.levelUp((level) => { this._check({ type: 'level', level })});
 		Hook.teleport((mapName) => { this._check({ type: 'teleport', mapName }) });
 		Hook.varChanged(() => { this._check({ type: 'vars' }) });
 		window.addEventListener('unload', () => this.onunload());
@@ -181,6 +182,20 @@ export class EventManager {
 				return [true, event.once];
 			}
 			break;
+		}
+		case 'level': {
+			if(action && action.type === 'level') {
+				if(typeof event.below === 'number' && action.level > event.below) {
+					break;
+				}
+				if(typeof event.above === 'number' && action.level < event.above) {
+					break;
+				}
+				if(typeof event.equal === 'number' && action.level !== event.equal) {
+					break;
+				}
+				return [true, event.once];
+			}
 		}
 		case 'preset': {
 			if(action && action.type === 'preset' && action.presetName === event.name) {

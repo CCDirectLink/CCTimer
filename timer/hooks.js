@@ -85,4 +85,14 @@ export class Hook {
 			}
 		});
 	}
+
+	static levelUp(callback) {
+		ig.GUI.LevelUpHud.inject({
+			init: function(...args) {
+				const result = this.parent(...args);
+				callback(sc.model.player.level);
+				return result;
+			}
+		});
+	}
 }

@@ -145,6 +145,20 @@ The `"start"` split may include a condition that causes the run to start.
 }
 ```
 
+### Level
+
+`"level"` checks for the start of a level up animation for a particular level. Levels can be bounded with `"above"`, `"below"`, and/or `"equal"`.
+
+#### Example
+```json
+{
+	"splits": [{
+		"type": "level",
+		"equal": 15
+	}]
+}
+```
+
 ### Preset
 
 `"preset"` checks if a specific preset was loaded (see [CCPresetRevival](https://github.com/CCDirectLink/CCPresetRevival)). `"name"` will be checked against the `"title"` property of the loaded preset.
