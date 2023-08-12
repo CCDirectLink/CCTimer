@@ -18,6 +18,8 @@ export class RoomtimeDisplay extends IngameDisplay {
     update() {
         if (sc.options.get('roomTimer')) {
             this._update();
+        } else {
+            this.timer.innerHTML = ''
         }
     }
 }

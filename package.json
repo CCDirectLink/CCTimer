@@ -11,5 +11,8 @@
 	"ccmodDependencies": {
 		"ccloader": "^2.19.0",
 		"Simplify": "^2.9.0"
+	},
+	"devDependencies": {
+		"ws": "^8.13.0"
 	}
 }
