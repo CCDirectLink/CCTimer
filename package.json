@@ -7,7 +7,7 @@
 		"start": "esbuild --target=es2018 --format=esm --platform=node --bundle --sourcemap=inline --outfile=plugin.js src/plugin.js",
 		"watch": "esbuild --target=es2018 --format=esm --platform=node --bundle --sourcemap=inline --watch --outfile=plugin.js src/plugin.js"
 	},
-	"version": "2.6.0",
+	"version": "3.0.0",
 	"ccmodDependencies": {
 		"ccloader": "^2.19.0",
 		"Simplify": "^2.9.0"
