@@ -1,0 +1,14 @@
+{
+    "id": "timer",
+    "version": "3.0.0",
+    "title": "CCTimer",
+    "description": "A speedrun timer for CrossCode.",
+    "icons": {
+        "24": "icon.png"
+    },
+    "plugin": "plugin.js",
+    "dependencies": {
+		"ccloader": "^2.19.0",
+		"Simplify": "^2.9.0"
+    }
+}

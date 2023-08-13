@@ -5,14 +5,15 @@ export class ConnectionManager {
 		this.net = require('net');
 	}
 
-	connect(onconnect, onerror) {
+	connect(onconnect, ondisconnect) {
 		onconnect = onconnect || (() => {});
-		onerror = onerror || (() => {});
+		ondisconnect = ondisconnect || (() => {});
+        
+        ondisconnect()
 
 		this.livesplit = this.net.connect(12346);
 		this.livesplit.on('connect', () => onconnect());
 		this.livesplit.on('disconnect', () => this.connect());
-		this.livesplit.on('error', () => onerror());
 	}
 
 	sendStart() {

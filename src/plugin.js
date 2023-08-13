@@ -1,5 +1,6 @@
 import { IngameDisplay } from './ingameDisplay.js';
 import { ConnectionManager } from './connectionManager.js';
+import { LiveSplitOneServer } from './livesplitone.js';
 import { Config } from './config.js';
 import { EventManager } from './eventManager.js';
 import { Utils } from './utils.js';
@@ -7,47 +8,54 @@ import { StateManager } from './stateManager.js';
 import { RoomtimeDisplay } from './roomtimeDisplay.js';
 import { Hook } from './hooks.js';
 
-export default class CCTimer extends Plugin {
+export default class CCTimer {
 	constructor(mod) {
-		super();
 		this.mod = mod;
 		this.splitsDir = 'autosplitters/'; 
 	}
 
 	main() {
-		const utils = this.utils = new Utils();
-		utils.addOptions();
-		utils.printEvents();
+		this.utils.addOptions();
+		this.utils.printEvents();
 
-		const ingameDisplay = this.ingameDisplay = new IngameDisplay(() => sc.stats.getMap('player', 'playtime'));
-		ingameDisplay.initialize();
-		if (!window.require) {
-			ingameDisplay.run();
-			return;
-		}
+        this.mode = sc.options.get('timerMode')
 
+        if (this.mode == sc.TIMER_MODE.Off) { return }
+
+        if (this.mode == sc.TIMER_MODE.InGame) {
+		    this.ingameDisplay = new IngameDisplay(() => sc.stats.getMap('player', 'playtime'));
+            
+        } else if (this.mode == sc.TIMER_MODE.LiveSplit) {
+		    this.ingameDisplay = new IngameDisplay(() => this.connected ? '' : 'LiveSplit not connected');
+            this.connection = new ConnectionManager()
+
+        } else if (this.mode == sc.TIMER_MODE.LiveSplitOne) {
+		    this.ingameDisplay = new IngameDisplay(() => this.connected ? '' : 'Connect at one.livesplit.org with adress ws://localhost:5000');
+            this.connection = new LiveSplitOneServer()
+        }
+
+        if (this.connection) {
+            this.connection.connect(() => {
+                this.setupLivesplit()
+                this.connected = true
+            }, () => {
+                this.connected = false
+            })
+        }
+
+        if (this.ingameDisplay) {
+		    this.ingameDisplay.initialize();
+		    this.ingameDisplay.run();
+        }
 		this.roomDisplay = new RoomtimeDisplay();
 		this.roomDisplay.initialize();
 		Hook.loadMap(() => this.roomDisplay.start());
 		Hook.update(() => this.roomDisplay.update());
-
-		const connection = this.connection = new ConnectionManager();
-		connection.connect(() => this.setupLivesplit(), () => ingameDisplay.run());
 	}
 
 	prestart() {
-		if(versions.hasOwnProperty('input-api')) {
-			sc.OPTIONS_DEFINITION["keys-reset-splits"] = {
-				cat: sc.OPTION_CATEGORY.CONTROLS,
-				hasDivider: true,
-				header: 'ccTimer',
-				init: {
-					key1: ig.KEY.SEMICOLON,
-					key2: void 0
-				},
-				type: 'CONTROLS',
-			};
-		}
+		this.utils = new Utils();
+        this.utils.addOptionsPrestart()
 	}
 
 	async setupLivesplit() {

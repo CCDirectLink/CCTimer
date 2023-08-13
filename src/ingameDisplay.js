@@ -31,6 +31,9 @@ export class IngameDisplay {
 		if(!t || (!this.isRoomTimer && sc.options.get('roomTimer'))) {
 			return this.timer.innerHTML  = '';
 		}
+        if (typeof t === 'string') {
+            return this.timer.innerHTML = t;
+        }
 		const hour =  parseInt(t / 60 / 60);
 		const min = parseInt(t / 60) - hour * 60;
 		const sec = Math.floor((t - (min + hour * 60) * 60 ) * 1000) / 1000;
