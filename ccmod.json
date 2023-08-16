@@ -1,6 +1,6 @@
 {
     "id": "timer",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "title": "CCTimer",
     "description": "A speedrun timer for CrossCode.",
     "icons": {

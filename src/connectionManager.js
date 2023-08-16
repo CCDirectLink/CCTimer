@@ -17,7 +17,7 @@ export class ConnectionManager {
 	}
 
 	sendStart() {
-		if (!this.livesplit) {
+		if (!this.livesplit || !this.livesplit.writable) {
 			return;
 		}
 
@@ -30,7 +30,7 @@ export class ConnectionManager {
 	 * @param {number} value 
 	 */
 	sendIgt(value) {
-		if (!this.livesplit) {
+		if (!this.livesplit || !this.livesplit.writable) {
 			return;
 		}
 
@@ -40,7 +40,7 @@ export class ConnectionManager {
 	}
 
 	sendSplit() {
-		if (!this.livesplit) {
+		if (!this.livesplit || !this.livesplit.writable) {
 			console.warn('[timer] Could not send split');
 			return;
 		}
@@ -54,7 +54,7 @@ export class ConnectionManager {
 	 * @param {boolean} paused
 	 */
 	sendPaused(paused) {
-		if (!this.livesplit) {
+		if (!this.livesplit || !this.livesplit.writable) {
 			return;
 		}
 
