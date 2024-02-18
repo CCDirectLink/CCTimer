@@ -9,8 +9,7 @@
 	},
 	"version": "3.0.0",
 	"ccmodDependencies": {
-		"ccloader": "^2.19.0",
-		"Simplify": "^2.9.0"
+		"ccloader": "^2.19.0"
 	},
 	"devDependencies": {
 		"esbuild": "^0.19.1",

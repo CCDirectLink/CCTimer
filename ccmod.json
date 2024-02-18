@@ -10,8 +10,7 @@
     "24": "icon.png"
   },
   "dependencies": {
-    "ccloader": "^2.19.0",
-    "Simplify": "^2.9.0"
+    "ccloader": "^2.19.0"
   },
   "plugin": "plugin.js"
 }
