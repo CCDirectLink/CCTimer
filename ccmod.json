@@ -1,14 +1,16 @@
 {
-    "id": "timer",
-    "version": "3.0.1",
-    "title": "CCTimer",
-    "description": "A speedrun timer for CrossCode.",
-    "icons": {
-        "24": "icon.png"
-    },
-    "plugin": "plugin.js",
-    "dependencies": {
-		"ccloader": "^2.19.0",
-		"Simplify": "^2.9.0"
-    }
+  "id": "timer",
+  "version": "3.0.2",
+  "title": "CCTimer",
+  "description": "A speedrun timer for CrossCode.",
+  "repository": "https://github.com/CCDirectLink/CCTimer",
+  "tags": ["speedrun"],
+  "authors": ["2767mr", "EpicYoshiMaster", "krypek"],
+  "icons": {
+    "24": "icon.png"
+  },
+  "dependencies": {
+    "ccloader": "^2.19.0"
+  },
+  "plugin": "plugin.js"
 }
